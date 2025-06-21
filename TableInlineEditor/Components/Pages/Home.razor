@@ -1,0 +1,53 @@
+﻿@page "/"
+@using TableInlineEditor.Components.EditControls
+@using TableInlineEditor.Services
+@using TableInlineEditor.Services.Models
+@inject IProductsDataService ProductsDataService
+@inject ICategoriesDataService CategoriesDataService
+
+<PageTitle>Products</PageTitle>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Unit Price</th>
+            <th>Discontinued</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in products)
+        {
+            <InlineProductEditor Product="product" Categories="categories" OnSave="Update" OnDelete="Delete"/>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Product> products = new List<Product>();
+    private List<Category> categories = new List<Category>();
+
+    protected override void OnInitialized()
+    {
+        products = ProductsDataService.GetAll();
+        categories = CategoriesDataService.GetAll();
+    }
+    
+    private void Update(Product product)
+    {
+        var category = categories.FirstOrDefault(x => x.CategoryID == product.CategoryID);
+        product.Category = category;
+        ProductsDataService.Update(product);
+    }
+
+    private void Delete(int productId)
+    {
+        if (productId > 0)
+        {
+            ProductsDataService.Delete(productId);
+        }
+    }
+}
